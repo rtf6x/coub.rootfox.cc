@@ -1,2 +1,4 @@
 .idea
 node_modules
+coub_timeline*
+/videos

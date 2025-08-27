@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Coub Player</title>
+    <style>
+        :root {
+            --bg: #0c1117;
+            --panel: #101823;
+            --ink: #e6edf3;
+            --muted: #9fb0c2;
+            --accent: #60d394;
+            --danger: #ff6b6b;
+            --shadow: 0 10px 30px rgba(0, 0, 0, .35)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", sans-serif
+        }
+
+        a {
+            color: var(--accent)
+        }
+
+        .wrap {
+            display: grid;
+            grid-template-rows:auto 1fr auto;
+            min-height: 100%
+        }
+
+        header, footer {
+            padding: 12px 16px
+        }
+
+        header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 10
+        }
+
+        header .title {
+            font-weight: 800
+        }
+
+        header .grow {
+            flex: 1
+        }
+
+        header .meta {
+            color: var(--muted)
+        }
+
+        main {
+            /*display: grid;*/
+            /*grid-template-columns:1fr 320px;*/
+            /*gap: 16px;*/
+            padding: 16px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%
+        }
+
+        /*@media (max-width: 980px) {*/
+        /*    main {*/
+        /*        grid-template-columns:1fr*/
+        /*    }*/
+        /*}*/
+
+        /*.player {*/
+        /*    background: var(--panel);*/
+        /*    border-radius: 14px;*/
+        /*    box-shadow: var(--shadow);*/
+        /*    padding: 12px*/
+        /*}*/
+
+        .stage {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000
+        }
+
+        audio {
+            display: none
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 8px;
+            pointer-events: none
+        }
+
+        .badge {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, .55);
+            color: var(--ink);
+            padding: 6px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            backdrop-filter: blur(4px)
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        .controls {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .btn {
+            appearance: none;
+            border: 0;
+            background: #122133;
+            color: var(--ink);
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            font-weight: 700
+        }
+
+        .btn.primary {
+            background: linear-gradient(180deg, #1b5f3f, #0c3d28)
+        }
+
+        .btn[disabled] {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        .btn.tab {
+            background: #0f1a29
+        }
+
+        .btn.tab.active {
+            outline: 1px solid rgba(96, 211, 148, .45);
+            box-shadow: 0 0 0 2px rgba(96, 211, 148, .2) inset
+        }
+
+        .progress {
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #1b2330;
+            border-radius: 999px
+        }
+
+        .progress::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(96, 211, 148, .25)
+        }
+
+        .sidebar {
+            display: none;
+            /*background: var(--panel);*/
+            /*border-radius: 14px;*/
+            /*box-shadow: var(--shadow);*/
+            /*padding: 8px;*/
+            /*max-height: calc(100vh - 150px);*/
+            /*overflow: auto*/
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns:1fr auto;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+        .item:hover {
+            background: rgba(255, 255, 255, .06)
+        }
+
+        .item.active {
+            background: rgba(96, 211, 148, .15);
+            outline: 1px solid rgba(96, 211, 148, .35)
+        }
+
+        .small {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        footer {
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        kbd {
+            background: #0a1118;
+            border: 1px solid #1c2a39;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font: 12px/1.2 ui-monospace, Menlo, Consolas, monospace;
+            color: #cfe2ff
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <div class="title">Coub Player</div>
+        <div class="tabs" id="plTabs">
+            <button class="btn tab" data-name="Normal" data-manifest="normal.json">Normal</button>
+            <button class="btn tab" data-name="Funny" data-manifest="funny.json">Funny</button>
+            <button class="btn tab" data-name="DOOM" data-manifest="doom.json">DOOM</button>
+        </div>
+        <div class="grow"></div>
+    </header>
+
+    <main>
+        <section class="player">
+            <div class="stage" id="stage">
+                <video id="v" playsinline preload="metadata" muted></video>
+                <audio id="a" preload="metadata"></audio>
+                <div class="overlay">
+                    <div class="badge" id="nowTitle">–</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="row">
+                    <button class="btn" id="prev">↑ Пред.</button>
+                    <button class="btn primary" id="playPause">▶︎ / ❚❚</button>
+                    <button class="btn" id="next">След. ↓</button>
+                    <div class="grow"></div>
+                    <button class="btn" id="fullscreen">⤢</button>
+                </div>
+                <div class="row small">
+                    <div id="counter">0 / 0</div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="sidebar" id="list"></aside>
+    </main>
+
+    <footer>
+        <div>
+            <kbd>↑</kbd>/<kbd>↓</kbd> — навигация · <kbd>Space</kbd> — play/pause · <kbd>M</kbd> — mute · <kbd>F</kbd> —
+            fullscreen · <kbd>H</kbd> — в начало
+        </div>
+    </footer>
+</div>
+
+<script>
+  (function () {
+    // ------------------------------ helpers ------------------------------
+    const $ = (id) => document.getElementById(id);
+    const escapeHtml = (s) => String(s).replace(/[&<>"']/g, m => ({
+      "&": "&amp;", "<": "&lt;",
+      ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+    }[m]));
+
+    // Elements
+    const v = $('v');
+    const a = $('a');
+    const listEl = $('list');
+    const nowTitle = $('nowTitle');
+    const counter = $('counter');
+
+    // State
+    let items = []; // {video, audio?, title?, permalink?}
+    let idx = 0;
+    let syncTimer = 0;
+
+    // Playlists
+    const tabs = document.getElementById('plTabs');
+    const tabBtns = tabs ? Array.from(tabs.querySelectorAll('.tab')) : [];
+
+    function setActiveTab(btn) {
+      tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const url = btn.dataset.manifest;
+        if (!url) return;
+        loadManifestUrl(url).catch(() => {
+        });
+        setActiveTab(btn);
+      });
+    });
+    // setActiveTab(btn);
+    // setQueryParam('manifest', url);
+
+    // Initial load
+    (function initPlaylist() {
+      const m = 'normal.json';
+      if (m) {
+        loadManifestUrl(m).catch(() => {
+        });
+        const match = tabBtns.find(b => b.dataset.manifest === m);
+        if (match) setActiveTab(match);
+        return;
+      }
+      const def = tabBtns.find(b => b.dataset.name === 'Normal') || tabBtns[0];
+      if (def) def.click();
+    })();
+
+    async function loadManifestUrl(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('manifest load error');
+      applyManifest(await res.json());
+    }
+
+    function normEntry(x) {
+      // Accepts our report_separate.json entries or {video, audio, title, permalink}
+      const video = x.videoOut || x.loopedPath || x.video || x.paths?.video || null;
+      const audio = x.audioOut || x.audio || x.paths?.audio || null;
+      const title = x.title || x._raw?.title || x.name || '';
+      const permalink = x.eff_permalink || x.permalink || x._raw?.permalink || '';
+      if (!video) return null;
+      return {video, audio, title, permalink};
+    }
+
+    function applyManifest(json) {
+      const arr = Array.isArray(json) ? json : (json.items || []);
+      items = arr.map(normEntry).filter(Boolean);
+      buildList();
+      if (items.length) load(0);
+    }
+
+    function buildList() {
+      listEl.innerHTML = '';
+      items.forEach((m, i) => {
+        const el = document.createElement('div');
+        el.className = 'item';
+        el.innerHTML = `<div><strong>${escapeHtml(m.title || '(без названия)')}</strong><div class="small">${escapeHtml(m.permalink || '')}</div></div><div class="small">${i + 1}/${items.length}${m.audio ? ' · 🎧' : ''}</div>`;
+        el.onclick = () => load(i);
+        listEl.appendChild(el);
+      });
+      updateActive();
+    }
+
+    function updateActive() {
+      [...listEl.children].forEach((c, i) => c.classList.toggle('active', i === idx));
+      counter.textContent = `${idx + 1} / ${items.length}`;
+    }
+
+    function stopSync() {
+      if (syncTimer) {
+        cancelAnimationFrame(syncTimer);
+        syncTimer = 0;
+      }
+    }
+
+    function startSync() {
+      stopSync();
+      const loop = () => {
+        const haveAudio = !!a.getAttribute('src') && isFinite(a.duration) && a.duration > 0;
+        const vd = isFinite(v.duration) && v.duration > 0 ? v.duration : null;
+        if (haveAudio && !a.paused && !a.ended) {
+          if (vd) {
+            // keep video in phase with audio (modulo video duration)
+            const target = a.currentTime % vd;
+            const drift = v.currentTime - target;
+            if (Math.abs(drift) > 0.06) {
+              try {
+                v.currentTime = target;
+              } catch {
+              }
+            }
+          }
+        }
+        if (haveAudio && a.ended) {
+          v.pause();
+        }
+        syncTimer = requestAnimationFrame(loop);
+      };
+      syncTimer = requestAnimationFrame(loop);
+    }
+
+    async function load(i) {
+      if (i < 0 || i >= items.length) return;
+      idx = i;
+      updateActive();
+      const it = items[i];
+
+      // reset sources
+      pauseBoth();
+      stopSync();
+      v.removeAttribute('src');
+      a.removeAttribute('src');
+      v.load();
+      a.load();
+
+      v.src = it.video; // video is always muted & looped
+      v.muted = true;
+      v.loop = true;
+      v.onended = () => {
+        if (v.loop) {
+          v.currentTime = 0;
+          v.play().catch(() => {
+          });
+        }
+      };
+      if (it.audio) a.src = it.audio; // may be absent
+
+      nowTitle.textContent = `${it.title || ''}`.trim() || '(без названия)';
+
+      // wait metadata
+      const need = it.audio ? 2 : 1;
+      let ready = 0;
+      const done = () => {
+        if (++ready >= need) start();
+      };
+      v.onloadedmetadata = done;
+      if (it.audio) a.onloadedmetadata = done;
+      setTimeout(done, 1200); // fallback
+
+      async function start() {
+        try {
+          await v.play();
+        } catch {
+        }
+        if (it.audio) {
+          try {
+            await a.play();
+          } catch {
+          }
+        }
+        startSync();
+      }
+    }
+
+    function pauseBoth() {
+      v.pause();
+      a.pause();
+    }
+
+    function playBoth() {
+      v.play().catch(() => {
+      });
+      a.play().catch(() => {
+      });
+      startSync();
+    }
+
+    // Controls
+    $('prev').onclick = () => load(idx - 1);
+    $('next').onclick = () => load(idx + 1);
+    $('fullscreen').onclick = () => $('stage').requestFullscreen?.();
+    $('playPause').onclick = () => (a.paused ? playBoth() : pauseBoth());
+
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        load(idx + 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        load(idx - 1);
+      } else if (e.key === ' ') {
+        e.preventDefault();
+        (a.paused ? playBoth() : pauseBoth());
+      } else if (e.key.toLowerCase() === 'm') {
+        a.muted = !a.muted;
+      } else if (e.key.toLowerCase() === 'f') {
+        $('stage').requestFullscreen?.();
+      } else if (e.key.toLowerCase() === 'h') {
+        if (isFinite(a.duration)) a.currentTime = 0;
+        if (isFinite(v.duration)) v.currentTime = 0;
+      }
+    });
+  })();
+</script>
+</body>
+</html>

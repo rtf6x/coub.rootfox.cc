@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "timeline": "node ./scripts/coub.js xchrtf6x",
+    "fetch": "node ./scripts/fetch-coub.mjs --from-json ./coub_timeline_xchrtf6x.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -14,5 +16,8 @@
   "bugs": {
     "url": "https://gitlab.com/rootfox/coub.rootfox.cc/issues"
   },
-  "homepage": "https://gitlab.com/rootfox/coub.rootfox.cc#readme"
+  "homepage": "https://gitlab.com/rootfox/coub.rootfox.cc#readme",
+  "dependencies": {
+    "undici": "^7.15.0"
+  }
 }
