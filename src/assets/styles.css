@@ -1,0 +1,260 @@
+:root {
+    --bg: #111;
+    --panel: #171717;
+    --ink: #f1f1f1;
+    --muted: #9a9a9a;
+    --accent: #ff7a18;
+    --accent-2: #ff9b4a;
+    --danger: #ff5b5b;
+    --ring: rgba(255, 122, 24, .28);
+    --shadow: 0 10px 30px rgba(0, 0, 0, .35)
+}
+
+* {
+    box-sizing: border-box
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", sans-serif
+}
+
+a {
+    color: var(--accent)
+}
+
+.wrap {
+    display: grid;
+    grid-template-rows:auto 1fr auto;
+    min-height: 100%
+}
+
+header, footer {
+    padding: 12px 16px
+}
+
+header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 10
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px
+}
+
+.brand .logo {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px
+}
+
+.brand .title {
+    font-weight: 800;
+    letter-spacing: .2px
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.grow {
+    flex: 1
+}
+
+main {
+    padding: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%
+}
+
+.stage {
+    position: relative;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow)
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000
+}
+
+audio {
+    display: none
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 8px;
+    pointer-events: none
+}
+
+.badge {
+    pointer-events: auto;
+    background: rgba(0, 0, 0, .55);
+    color: var(--ink);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    backdrop-filter: blur(4px)
+}
+
+.muted {
+    color: var(--muted)
+}
+
+.controls {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px
+}
+
+.row {
+    display: flex;
+    gap: 8px;
+    align-items: center
+}
+
+.btn {
+    appearance: none;
+    border: 0;
+    background: #1c1c1c;
+    color: var(--ink);
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    font-weight: 700;
+    transition: transform .06s ease, box-shadow .2s ease, background .2s ease, outline .2s ease;
+    outline: 1px solid rgba(255, 255, 255, .04)
+}
+
+.btn:hover {
+    transform: translateY(-1px)
+}
+
+.btn.primary {
+    background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+    outline: 1px solid var(--ring);
+    box-shadow: 0 0 0 2px rgba(255, 122, 24, .08) inset, var(--shadow)
+}
+
+.btn[disabled] {
+    opacity: .5;
+    cursor: not-allowed
+}
+
+.btn.tab {
+    background: #1a1a1a
+}
+
+.btn.tab.active {
+    outline: 1px solid var(--ring);
+    box-shadow: 0 0 0 2px rgba(255, 122, 24, .12) inset
+}
+
+.sidebar {
+    display: none
+}
+
+.small {
+    font-size: 12px;
+    color: var(--muted)
+}
+
+footer {
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+kbd {
+    background: #0e0e0e;
+    border: 1px solid #262626;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font: 12px/1.2 ui-monospace, Menlo, Consolas, monospace;
+    color: #ffd9bf
+}
+
+/* Spinner */
+.loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(closest-side, rgba(0, 0, 0, .35), rgba(0, 0, 0, 0));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease
+}
+
+.loading.show {
+    opacity: 1;
+    pointer-events: auto
+}
+
+.ring {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, .2);
+    border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 24px rgba(255, 122, 24, .35)
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+/* Lang switcher */
+.lang {
+    display: flex;
+    gap: 6px;
+    align-items: center
+}
+
+.chip {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid #2a2a2a;
+    background: #141414;
+    color: #d8d8d8;
+    cursor: pointer;
+    font-weight: 700
+}
+
+.chip.active {
+    border-color: var(--accent);
+    color: #fff
+}
