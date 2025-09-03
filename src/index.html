@@ -1,272 +1,154 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Coub Player</title>
-    <meta name="theme-color" content="#0c1117"/>
-    <!-- Favicon (SVG, inline data URI) -->
-    <link rel="icon"
-          href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101823'/%3E%3Cpath d='M26 20l22 12-22 12z' fill='%2360d394'/%3E%3C/svg%3E"
-          type="image/svg+xml"/>
-    <!-- Optional PNG fallback: place a 180x180 icon at /icon-180.png and uncomment next line -->
-    <!-- <link rel="apple-touch-icon" href="/icon-180.png"/> -->
+
+    <!-- THEME -->
+    <meta name="theme-color" content="#111"/>
+
+    <!-- Canonical (поменяй на свой абсолютный URL) -->
+    <link rel="canonical" href="YOUR_ABSOLUTE_URL_PAGE"/>
+
+    <!-- Favicon / App Icon -->
+    <link rel="icon" type="image/svg+xml"
+          href='data:image/svg+xml,<?xml version="1.0" encoding="UTF-8"?>\
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">\
+<rect width="64" height="64" rx="14" fill="#111"/>\
+<path d="M26 18l22 14-22 14z" fill="#ff7a18"/>\
+<circle cx="18" cy="24" r="4" fill="#ff7a18" opacity="0.9"/>\
+</svg>'>
+    <!-- <link rel="apple-touch-icon" href="YOUR_ABSOLUTE_URL_ICON_180.png"/> -->
+
+    <!-- Open Graph / Twitter (замени на свои абсолютные URL) -->
+    <meta property="og:type" content="video.other"/>
+    <meta property="og:site_name" content="Coub Player"/>
+    <meta property="og:title" content="Coub Player — Looped video + separate audio"/>
+    <meta property="og:description" content="Custom coub-like player: looped video, longer audio, playlists."/>
+    <meta property="og:url" content="YOUR_ABSOLUTE_URL_PAGE"/>
+    <meta property="og:image" content="YOUR_ABSOLUTE_URL_OG_IMAGE.jpg"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Coub Player — Looped video + separate audio"/>
+    <meta name="twitter:description" content="Custom coub-like player: looped video, longer audio, playlists."/>
+    <meta name="twitter:image" content="YOUR_ABSOLUTE_URL_OG_IMAGE.jpg"/>
+
     <style>
         :root {
-            --bg: #0c1117;
-            --panel: #101823;
-            --ink: #e6edf3;
-            --muted: #9fb0c2;
-            --accent: #60d394;
-            --danger: #ff6b6b;
-            --shadow: 0 10px 30px rgba(0, 0, 0, .35)
+            --bg: #111;
+            --panel: #171717;
+            --ink: #f1f1f1;
+            --muted: #9a9a9a;
+            --accent: #ff7a18;        /* оранжевый акцент */
+            --accent-2: #ff9b4a;
+            --danger: #ff5b5b;
+            --ring: rgba(255,122,24,.28);
+            --shadow: 0 10px 30px rgba(0,0,0,.35);
         }
-
-        * {
-            box-sizing: border-box
-        }
-
+        * { box-sizing: border-box }
         html, body {
             height: 100%;
             margin: 0;
             background: var(--bg);
             color: var(--ink);
-            font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", sans-serif
+            font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Noto Sans", sans-serif;
         }
+        a { color: var(--accent) }
 
-        a {
-            color: var(--accent)
-        }
+        .wrap { display: grid; grid-template-rows: auto 1fr auto; min-height: 100% }
 
-        .wrap {
-            display: grid;
-            grid-template-rows:auto 1fr auto;
-            min-height: 100%
-        }
-
-        header, footer {
-            padding: 12px 16px
-        }
-
+        header, footer { padding: 12px 16px }
         header {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            background: var(--panel);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 10
+            display: flex; gap: 12px; align-items: center;
+            background: var(--panel); box-shadow: var(--shadow);
+            position: sticky; top: 0; z-index: 10;
         }
+        .brand { display:flex; align-items:center; gap:10px }
+        .brand .logo { width:28px; height:28px; flex:0 0 28px }
+        .brand .title { font-weight:800; letter-spacing:.2px }
 
-        header .title {
-            font-weight: 800
-        }
+        .tabs { display:flex; gap:8px; flex-wrap:wrap }
+        .grow { flex: 1 }
 
-        header .grow {
-            flex: 1
-        }
-
-        header .meta {
-            color: var(--muted)
-        }
-
-        main {
-            /*display: grid;*/
-            /*grid-template-columns:1fr 320px;*/
-            /*gap: 16px;*/
-            padding: 16px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%
-        }
-
-        /*@media (max-width: 980px) {*/
-        /*    main {*/
-        /*        grid-template-columns:1fr*/
-        /*    }*/
-        /*}*/
-
-        /*.player {*/
-        /*    background: var(--panel);*/
-        /*    border-radius: 14px;*/
-        /*    box-shadow: var(--shadow);*/
-        /*    padding: 12px*/
-        /*}*/
+        main { padding: 16px; max-width: 1200px; margin: 0 auto; width: 100% }
 
         .stage {
-            position: relative;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            aspect-ratio: 16/9;
-            display: flex;
-            align-items: center;
-            justify-content: center
+            position: relative; background:#000; border-radius:12px; overflow:hidden;
+            aspect-ratio: 16/9; display:flex; align-items:center; justify-content:center;
+            box-shadow: var(--shadow);
         }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #000
-        }
-
-        audio {
-            display: none
-        }
+        video { width:100%; height:100%; object-fit:contain; background:#000 }
+        audio { display:none }
 
         .overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding: 8px;
-            pointer-events: none
+            position:absolute; inset:0; display:flex; justify-content:space-between; align-items:flex-end;
+            padding:8px; pointer-events:none;
         }
-
         .badge {
-            pointer-events: auto;
-            background: rgba(0, 0, 0, .55);
-            color: var(--ink);
-            padding: 6px 10px;
-            border-radius: 10px;
-            font-weight: 600;
-            backdrop-filter: blur(4px)
+            pointer-events:auto; background:rgba(0,0,0,.55); color:var(--ink);
+            padding:6px 10px; border-radius:10px; font-weight:600; backdrop-filter: blur(4px);
         }
+        .muted { color: var(--muted) }
 
-        .muted {
-            color: var(--muted)
-        }
+        .controls { display:grid; gap:8px; margin-top:10px }
 
-        .controls {
-            display: grid;
-            gap: 8px;
-            margin-top: 10px
-        }
-
-        .row {
-            display: flex;
-            gap: 8px;
-            align-items: center
-        }
+        .row { display:flex; gap:8px; align-items:center }
 
         .btn {
-            appearance: none;
-            border: 0;
-            background: #122133;
-            color: var(--ink);
-            padding: 8px 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            font-weight: 700
+            appearance:none; border:0; background:#1c1c1c; color:var(--ink);
+            padding:8px 12px; border-radius:10px; cursor:pointer; box-shadow: var(--shadow); font-weight:700;
+            transition: transform .06s ease, box-shadow .2s ease, background .2s ease, outline .2s ease;
+            outline: 1px solid rgba(255,255,255,.04);
         }
-
+        .btn:hover { transform: translateY(-1px) }
         .btn.primary {
-            background: linear-gradient(180deg, #1b5f3f, #0c3d28)
+            background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+            outline: 1px solid var(--ring);
+            box-shadow: 0 0 0 2px rgba(255,122,24,.08) inset, var(--shadow);
         }
-
-        .btn[disabled] {
-            opacity: .5;
-            cursor: not-allowed
-        }
-
-        .btn.tab {
-            background: #0f1a29
-        }
-
+        .btn[disabled] { opacity:.5; cursor:not-allowed }
+        .btn.tab { background:#1a1a1a }
         .btn.tab.active {
-            outline: 1px solid rgba(96, 211, 148, .45);
-            box-shadow: 0 0 0 2px rgba(96, 211, 148, .2) inset
+            outline: 1px solid var(--ring);
+            box-shadow: 0 0 0 2px rgba(255,122,24,.12) inset;
         }
 
-        .progress {
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #1b2330;
-            border-radius: 999px
-        }
+        .sidebar { display:none }
 
-        .progress::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 0 4px rgba(96, 211, 148, .25)
-        }
-
-        .sidebar {
-            display: none;
-            /*background: var(--panel);*/
-            /*border-radius: 14px;*/
-            /*box-shadow: var(--shadow);*/
-            /*padding: 8px;*/
-            /*max-height: calc(100vh - 150px);*/
-            /*overflow: auto*/
-        }
-
-        .item {
-            display: grid;
-            grid-template-columns:1fr auto;
-            gap: 6px;
-            padding: 8px 10px;
-            border-radius: 10px;
-            cursor: pointer
-        }
-
-        .item:hover {
-            background: rgba(255, 255, 255, .06)
-        }
-
-        .item.active {
-            background: rgba(96, 211, 148, .15);
-            outline: 1px solid rgba(96, 211, 148, .35)
-        }
-
-        .small {
-            font-size: 12px;
-            color: var(--muted)
-        }
+        .small { font-size:12px; color:var(--muted) }
 
         footer {
-            color: var(--muted);
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            flex-wrap: wrap
+            color: var(--muted); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;
         }
-
         kbd {
-            background: #0a1118;
-            border: 1px solid #1c2a39;
-            padding: 2px 6px;
-            border-radius: 6px;
-            font: 12px/1.2 ui-monospace, Menlo, Consolas, monospace;
-            color: #cfe2ff
+            background:#0e0e0e; border:1px solid #262626; padding:2px 6px; border-radius:6px;
+            font: 12px/1.2 ui-monospace, Menlo, Consolas, monospace; color:#ffd9bf;
         }
 
-        /* Logo */
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px
+        /* Spinner */
+        .loading {
+            position:absolute; inset:0; display:grid; place-items:center;
+            background: radial-gradient(closest-side, rgba(0,0,0,.35), rgba(0,0,0,.0));
+            opacity:0; pointer-events:none; transition:opacity .2s ease;
         }
+        .loading.show { opacity:1; pointer-events:auto }
+        .ring {
+            width:56px; height:56px; border-radius:50%;
+            border:4px solid rgba(255,255,255,.2);
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 24px rgba(255,122,24,.35);
+        }
+        @keyframes spin { to { transform: rotate(360deg) } }
 
-        .brand .logo {
-            width: 28px;
-            height: 28px;
-            flex: 0 0 28px
+        /* Lang switcher */
+        .lang { display:flex; gap:6px; align-items:center }
+        .chip {
+            padding:6px 10px; border-radius:999px; border:1px solid #2a2a2a; background:#141414;
+            color:#d8d8d8; cursor:pointer; font-weight:700;
         }
+        .chip.active { border-color: var(--accent); color:#fff }
 
-        .brand .title {
-            font-weight: 800;
-            letter-spacing: .2px
-        }
     </style>
 </head>
 <body>
@@ -274,24 +156,25 @@
     <header>
         <div class="brand" aria-label="">
             <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <defs>
-                    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="#60d394"/>
-                        <stop offset="1" stop-color="#2ab673"/>
-                    </linearGradient>
-                </defs>
-                <rect x="4" y="4" width="56" height="56" rx="14" fill="#101823"/>
-                <path d="M26 20l22 12-22 12z" fill="url(#g)"/>
-                <circle cx="20" cy="24" r="4" fill="#60d394" opacity="0.9"/>
+                <rect x="4" y="4" width="56" height="56" rx="14" fill="#111"/>
+                <path d="M26 18l22 14-22 14z" fill="#ff7a18"/>
+                <circle cx="18" cy="24" r="4" fill="#ff7a18" opacity="0.9"/>
             </svg>
             <div class="title">Coub Player</div>
         </div>
+
         <div class="tabs" id="plTabs">
             <button class="btn tab" data-name="Normal" data-manifest="normal.json">Normal</button>
             <button class="btn tab" data-name="Funny" data-manifest="funny.json">Funny</button>
             <button class="btn tab" data-name="DOOM" data-manifest="doom.json">DOOM</button>
         </div>
+
         <div class="grow"></div>
+
+        <div class="lang" id="lang">
+            <button class="chip" data-lang="en">EN</button>
+            <button class="chip" data-lang="ru">RU</button>
+        </div>
     </header>
 
     <main>
@@ -299,18 +182,23 @@
             <div class="stage" id="stage">
                 <video id="v" playsinline preload="metadata" muted></video>
                 <audio id="a" preload="metadata"></audio>
+
+                <div class="loading" id="spinner" aria-hidden="true">
+                    <div class="ring" aria-label="Loading"></div>
+                </div>
+
                 <div class="overlay">
-                    <div class="badge" id="nowTitle">–</div>
+                    <div class="badge" id="nowTitle" aria-live="polite">–</div>
                 </div>
             </div>
 
             <div class="controls">
                 <div class="row">
-                    <button class="btn" id="prev">↑ Пред.</button>
-                    <button class="btn primary" id="playPause">▶︎ / ❚❚</button>
-                    <button class="btn" id="next">След. ↓</button>
+                    <button class="btn" id="prev" data-i18n="prev">↑ Prev</button>
+                    <button class="btn primary" id="playPause" data-i18n="playPause">▶︎ / ❚❚</button>
+                    <button class="btn" id="next" data-i18n="next">Next ↓</button>
                     <div class="grow"></div>
-                    <button class="btn" id="fullscreen">⤢</button>
+                    <button class="btn" id="fullscreen" title="F" data-i18n="fullscreen">⤢ Fullscreen</button>
                 </div>
                 <div class="row small">
                     <div id="counter">0 / 0</div>
@@ -322,9 +210,8 @@
     </main>
 
     <footer>
-        <div>
-            <kbd>↑</kbd>/<kbd>↓</kbd> — навигация · <kbd>Space</kbd> — play/pause · <kbd>M</kbd> — mute · <kbd>F</kbd> —
-            fullscreen · <kbd>H</kbd> — в начало
+        <div id="hotkeys" class="small" data-i18n="hotkeys">
+            ↑/↓ — navigation · Space — play/pause · M — mute · F — fullscreen · H — home
         </div>
     </footer>
 </div>
@@ -334,8 +221,7 @@
     // ------------------------------ helpers ------------------------------
     const $ = (id) => document.getElementById(id);
     const escapeHtml = (s) => String(s).replace(/[&<>"']/g, m => ({
-      "&": "&amp;", "<": "&lt;",
-      ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
     }[m]));
 
     // Elements
@@ -344,38 +230,88 @@
     const listEl = $('list');
     const nowTitle = $('nowTitle');
     const counter = $('counter');
+    const spinner = $('spinner');
+    const stage = $('stage');
 
     // State
     let items = []; // {video, audio?, title?, permalink?}
     let idx = 0;
-    let syncTimer = 0;
+    let syncRaf = 0;
+    let watchdogTimer = 0;
 
-    // Playlists
+    // ------------------------------ i18n ------------------------------
+    const STR = {
+      en: {
+        prev: '↑ Prev',
+        next: 'Next ↓',
+        playPause: '▶︎ / ❚❚',
+        fullscreen: '⤢ Fullscreen',
+        hotkeys: '↑/↓ — navigation · Space — play/pause · M — mute · F — fullscreen · H — home',
+        untitled: '(untitled)'
+      },
+      ru: {
+        prev: '↑ Пред.',
+        next: 'След. ↓',
+        playPause: '▶︎ / ❚❚',
+        fullscreen: '⤢ Во весь экран',
+        hotkeys: '↑/↓ — навигация · Space — play/pause · M — mute · F — fullscreen · H — в начало',
+        untitled: '(без названия)'
+      }
+    };
+    const SUP_LANGS = ['en','ru'];
+    function pickLang() {
+      const saved = localStorage.getItem('lang');
+      if (saved && SUP_LANGS.includes(saved)) return saved;
+      const nav = (navigator.language || navigator.userLanguage || 'en').slice(0,2).toLowerCase();
+      return SUP_LANGS.includes(nav) ? nav : 'en';
+    }
+    let LANG = pickLang();
+    document.documentElement.lang = LANG;
+
+    function applyI18n() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = STR[LANG]?.[key];
+        if (val) el.textContent = val;
+      });
+      // header lang chips
+      const chips = Array.from(document.querySelectorAll('#lang .chip'));
+      chips.forEach(c => c.classList.toggle('active', c.dataset.lang === LANG));
+    }
+    applyI18n();
+    // lang switch handler
+    document.getElementById('lang').addEventListener('click', (e) => {
+      const btn = e.target.closest('.chip');
+      if (!btn) return;
+      const next = btn.dataset.lang;
+      if (SUP_LANGS.includes(next)) {
+        LANG = next;
+        localStorage.setItem('lang', LANG);
+        document.documentElement.lang = LANG;
+        applyI18n();
+        buildList(); // перерисовать подписи (untitled)
+      }
+    });
+
+    // ------------------------------ playlists (tabs) ------------------------------
     const tabs = document.getElementById('plTabs');
     const tabBtns = tabs ? Array.from(tabs.querySelectorAll('.tab')) : [];
-
-    function setActiveTab(btn) {
-      tabBtns.forEach(b => b.classList.toggle('active', b === btn));
-    }
-
+    function setActiveTab(btn){ tabBtns.forEach(b => b.classList.toggle('active', b === btn)); }
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const url = btn.dataset.manifest;
         if (!url) return;
-        loadManifestUrl(url).catch(() => {
-        });
+        loadManifestUrl(url).catch(()=>{});
         setActiveTab(btn);
+        // (опционально) можно обновить query-параметр manifest, если хочешь
       });
     });
-    // setActiveTab(btn);
-    // setQueryParam('manifest', url);
 
     // Initial load
     (function initPlaylist() {
       const m = 'normal.json';
       if (m) {
-        loadManifestUrl(m).catch(() => {
-        });
+        loadManifestUrl(m).catch(()=>{});
         const match = tabBtns.find(b => b.dataset.manifest === m);
         if (match) setActiveTab(match);
         return;
@@ -385,13 +321,15 @@
     })();
 
     async function loadManifestUrl(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('manifest load error');
+      showSpinner(true);
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) { showSpinner(false); throw new Error('manifest load error'); }
       applyManifest(await res.json());
+      showSpinner(false);
     }
 
     function normEntry(x) {
-      // Accepts our report_separate.json entries or {video, audio, title, permalink}
+      // Accepts report_separate.json entries or {video, audio, title, permalink}
       const video = x.videoOut || x.loopedPath || x.video || x.paths?.video || null;
       const audio = x.audioOut || x.audio || x.paths?.audio || null;
       const title = x.title || x._raw?.title || x.name || '';
@@ -412,7 +350,8 @@
       items.forEach((m, i) => {
         const el = document.createElement('div');
         el.className = 'item';
-        el.innerHTML = `<div><strong>${escapeHtml(m.title || '(без названия)')}</strong><div class="small">${escapeHtml(m.permalink || '')}</div></div><div class="small">${i + 1}/${items.length}${m.audio ? ' · 🎧' : ''}</div>`;
+        const title = `${m.title || ''}`.trim() || STR[LANG].untitled;
+        el.innerHTML = `<div><strong>${escapeHtml(title)}</strong><div class="small">${escapeHtml(m.permalink || '')}</div></div><div class="small">${i + 1}/${items.length}${m.audio ? ' · 🎧' : ''}</div>`;
         el.onclick = () => load(i);
         listEl.appendChild(el);
       });
@@ -424,39 +363,66 @@
       counter.textContent = `${idx + 1} / ${items.length}`;
     }
 
+    // ------------------------------ sync & anti-stutter ------------------------------
     function stopSync() {
-      if (syncTimer) {
-        cancelAnimationFrame(syncTimer);
-        syncTimer = 0;
-      }
+      if (syncRaf) { cancelAnimationFrame(syncRaf); syncRaf = 0; }
     }
-
     function startSync() {
       stopSync();
       const loop = () => {
         const haveAudio = !!a.getAttribute('src') && isFinite(a.duration) && a.duration > 0;
         const vd = isFinite(v.duration) && v.duration > 0 ? v.duration : null;
-        if (haveAudio && !a.paused && !a.ended) {
-          if (vd) {
-            // keep video in phase with audio (modulo video duration)
-            const target = a.currentTime % vd;
-            const drift = v.currentTime - target;
-            if (Math.abs(drift) > 0.06) {
-              try {
-                v.currentTime = target;
-              } catch {
-              }
-            }
+        if (haveAudio && !a.paused && !a.ended && vd) {
+          // keep video in phase with audio (modulo video duration)
+          const target = a.currentTime % vd;
+          const drift = v.currentTime - target;
+          if (Math.abs(drift) > 0.06) {
+            try { v.currentTime = target; } catch {}
           }
         }
-        if (haveAudio && a.ended) {
-          v.pause();
-        }
-        syncTimer = requestAnimationFrame(loop);
+        if (haveAudio && a.ended) { v.pause(); }
+        syncRaf = requestAnimationFrame(loop);
       };
-      syncTimer = requestAnimationFrame(loop);
+      syncRaf = requestAnimationFrame(loop);
     }
 
+    function showSpinner(on) { spinner.classList.toggle('show', !!on); }
+
+    // Watchdog: если timeupdate не двигается и readyState низкий — считаем статтером.
+    function startWatchdog() {
+      stopWatchdog();
+      let lastT = -1, lastWall = performance.now();
+      watchdogTimer = setInterval(() => {
+        if (v.paused || v.readyState === 0) return;
+        const t = v.currentTime;
+        const now = performance.now();
+        const progressed = Math.abs(t - lastT) > 0.016; // ~1 кадр
+        const lowReady = v.readyState <= 2; // HAVE_CURRENT_DATA or ниже
+        if (!progressed && lowReady && (now - lastWall) > 350) {
+          onVideoStutter();
+        } else if (progressed && v.readyState >= 3) {
+          onVideoResumed();
+          lastWall = now;
+        }
+        lastT = t;
+      }, 250);
+    }
+    function stopWatchdog() {
+      if (watchdogTimer) { clearInterval(watchdogTimer); watchdogTimer = 0; }
+    }
+
+    function onVideoStutter() {
+      if (!a.paused) { a.pause(); }
+      showSpinner(true);
+    }
+    function onVideoResumed() {
+      showSpinner(false);
+      if (a.src && a.paused && !a.ended) {
+        a.play().catch(()=>{});
+      }
+    }
+
+    // ------------------------------ load & controls ------------------------------
     async function load(i) {
       if (i < 0 || i >= items.length) return;
       idx = i;
@@ -466,26 +432,32 @@
       // reset sources
       pauseBoth();
       stopSync();
-      v.removeAttribute('src');
-      a.removeAttribute('src');
-      v.load();
-      a.load();
+      stopWatchdog();
+      v.removeAttribute('src'); a.removeAttribute('src');
+      v.load(); a.load();
 
-      v.src = it.video; // video is always muted & looped
+      showSpinner(true);
+
+      v.src = it.video;
       v.muted = true;
       v.loop = true;
-      v.onended = () => {
-        if (v.loop) {
-          v.currentTime = 0;
-          v.play().catch(() => {
-          });
-        }
-      };
-      if (it.audio) a.src = it.audio; // may be absent
 
-      nowTitle.textContent = `${it.title || ''}`.trim() || '(без названия)';
+      if (it.audio) a.src = it.audio;
 
-      // wait metadata
+      const title = `${it.title || ''}`.trim() || STR[LANG].untitled;
+      nowTitle.textContent = title;
+
+      // events for anti-stutter
+      const handleWaiting = () => onVideoStutter();
+      const handlePlaying = () => onVideoResumed();
+      v.addEventListener('waiting', handleWaiting, { once:false });
+      v.addEventListener('stalled', handleWaiting, { once:false });
+      v.addEventListener('suspend', handleWaiting, { once:false });
+      v.addEventListener('canplay', handlePlaying, { once:false });
+      v.addEventListener('playing', handlePlaying, { once:false });
+      v.addEventListener('canplaythrough', handlePlaying, { once:false });
+
+      // wait metadata (fallback таймер остаётся)
       const need = it.audio ? 2 : 1;
       let ready = 0;
       const done = () => {
@@ -496,59 +468,41 @@
       setTimeout(done, 1200); // fallback
 
       async function start() {
-        try {
-          await v.play();
-        } catch {
-        }
-        if (it.audio) {
-          try {
-            await a.play();
-          } catch {
-          }
-        }
+        try { await v.play(); } catch {}
+        if (it.audio) { try { await a.play(); } catch {} }
         startSync();
+        startWatchdog();
+        showSpinner(false);
       }
     }
 
-    function pauseBoth() {
-      v.pause();
-      a.pause();
-    }
-
+    function pauseBoth() { v.pause(); a.pause(); }
     function playBoth() {
-      v.play().catch(() => {
-      });
-      a.play().catch(() => {
-      });
+      v.play().catch(()=>{});
+      a.play().catch(()=>{});
       startSync();
     }
 
     // Controls
     $('prev').onclick = () => load(idx - 1);
     $('next').onclick = () => load(idx + 1);
-    $('fullscreen').onclick = () => $('stage').requestFullscreen?.();
+    $('fullscreen').onclick = () => stage.requestFullscreen?.();
     $('playPause').onclick = () => (a.paused ? playBoth() : pauseBoth());
 
     window.addEventListener('keydown', (e) => {
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        load(idx + 1);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        load(idx - 1);
-      } else if (e.key === ' ') {
-        e.preventDefault();
-        (a.paused ? playBoth() : pauseBoth());
-      } else if (e.key.toLowerCase() === 'm') {
-        a.muted = !a.muted;
-      } else if (e.key.toLowerCase() === 'f') {
-        $('stage').requestFullscreen?.();
-      } else if (e.key.toLowerCase() === 'h') {
+      if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+      const k = e.key.toLowerCase();
+      if (k === 'arrowdown') { e.preventDefault(); load(idx + 1); }
+      else if (k === 'arrowup') { e.preventDefault(); load(idx - 1); }
+      else if (k === ' ') { e.preventDefault(); (a.paused ? playBoth() : pauseBoth()); }
+      else if (k === 'm') { a.muted = !a.muted; }
+      else if (k === 'f') { stage.requestFullscreen?.(); }
+      else if (k === 'h') {
         if (isFinite(a.duration)) a.currentTime = 0;
         if (isFinite(v.duration)) v.currentTime = 0;
       }
     });
+
   })();
 </script>
 </body>
