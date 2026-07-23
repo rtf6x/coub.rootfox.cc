@@ -14,6 +14,17 @@
   const spinner = $('spinner');
   const stage = $('stage');
 
+  const MEDIA_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? ''
+    : 'https://media.rootfox.cc/coub/';
+
+  function mediaUrl(path) {
+    if (!path) return path;
+    if (/^https?:\/\//i.test(path)) return path;
+    if (!MEDIA_BASE) return path;
+    return MEDIA_BASE + path.replace(/^videos\//, '');
+  }
+
   // State
   let items = []; // {video, audio?, title?, permalink?}
   let idx = 0;
@@ -243,11 +254,11 @@
     a.load();
     showSpinner(true);
 
-    v.src = it.video;
+    v.src = mediaUrl(it.video);
     v.muted = true;
     v.loop = true;
 
-    if (it.audio) a.src = it.audio;
+    if (it.audio) a.src = mediaUrl(it.audio);
 
     const title = `${it.title || ''}`.trim() || (STR[LANG]?.untitled || '(untitled)');
     nowTitle.textContent = title;
