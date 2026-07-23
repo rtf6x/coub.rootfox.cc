@@ -47,7 +47,7 @@ After first deploy: Pages → **coub** → Custom domains → `coub.rootfox.cc`.
 
 | Workflow | Trigger |
 |----------|---------|
-| `deploy.yml` | push to `main`, except `src/videos/**` only |
+| `deploy.yml` | push to `main` (site files), or manual **Run workflow** |
 | `sync-r2.yml` | push when `src/videos/**` changes |
 
 ## Adding new coubs
