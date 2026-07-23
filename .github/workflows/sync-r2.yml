@@ -34,4 +34,4 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
           R2_PREFIX: ${{ vars.R2_PREFIX }}
-        run: npm run sync-r2
+        run: node ./scripts/sync-r2.mjs
