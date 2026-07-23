@@ -3,8 +3,6 @@ name: Deploy to Pages
 on:
   push:
     branches: [main, master]
-    paths-ignore:
-      - 'src/videos/**'
   workflow_dispatch:
 
 concurrency:
