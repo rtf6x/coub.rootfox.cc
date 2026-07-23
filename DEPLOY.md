@@ -1,7 +1,7 @@
 # Deployment
 
 Cloudflare Pages via CI (`wrangler pages deploy`), media on R2.  
-No Git connection in Cloudflare (same as `blog`).
+No Git connection in Cloudflare.
 
 ## Architecture
 
