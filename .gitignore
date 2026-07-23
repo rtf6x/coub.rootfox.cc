@@ -1,4 +1,5 @@
 .idea
 node_modules
 coub_timeline*
-/videos
+dist
+.DS_Store
