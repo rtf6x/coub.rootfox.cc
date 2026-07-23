@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "build": "node ./scripts/build-pages.mjs",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "npm run build && wrangler pages project create coub --production-branch=main || true && wrangler pages deploy dist --project-name=coub --branch=main",
     "sync-r2": "node ./scripts/sync-r2.mjs",
     "timeline": "node ./scripts/coub.js xchrtf6x",
     "fetch": "node ./scripts/fetch-coub.mjs --from-json ./coub_timeline_xchrtf6x.json --out ./src/videos",

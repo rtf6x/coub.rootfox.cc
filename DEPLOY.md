@@ -1,96 +1,57 @@
 # Deployment
 
-Static site on Cloudflare Workers (static assets), media on Cloudflare R2.
+Cloudflare Pages via CI (`wrangler pages deploy`), media on R2.  
+Same pattern as `blog`: **no Git connection in Cloudflare**.
 
 ## Architecture
 
 ```
-GitHub (public)
-├── src/              → Cloudflare Workers (dist/, without videos/)
-└── src/videos/       → GitHub backup + R2 sync via Actions
+GitHub push
+├── src/ (not videos)  → Actions: Deploy to Pages → Cloudflare Pages (coub)
+└── src/videos/        → Actions: Sync media to R2 → media.rootfox.cc/coub/
 
-media.rootfox.cc/coub/  → R2 bucket (custom domain)
-coub.rootfox.cc         → Cloudflare Workers
+coub.rootfox.cc        → Pages project "coub"
 ```
 
-Media URLs in production: `https://media.rootfox.cc/coub/{filename}.video.mp4`
+## One-time setup
 
-## Cloudflare deploy (Workers & Pages)
+### 1. Delete wrong Worker project
 
-Cloudflare merged Pages into Workers. Use **Create application** → connect Git.
+Remove `rootfox-coub` (Worker with Git) from Cloudflare dashboard if it exists.
 
-| Field | Value |
-|-------|-------|
-| Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy` |
-| Builds for non-production branches | optional |
+### 2. Cloudflare API token
 
-`wrangler.toml` points assets to `./dist` (built without `videos/`).
+Dashboard → My Profile → API Tokens → Create Token → **Edit Cloudflare Workers** template  
+(or custom with **Account / Cloudflare Pages: Edit**).
 
-After first deploy: project → **Settings** → **Domains & Routes** → add `coub.rootfox.cc`.
+### 3. GitHub secrets
 
-## Cloudflare R2
+| Secret | Value |
+|--------|-------|
+| `CLOUDFLARE_API_TOKEN` | API token from step 2 |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
+| `R2_ACCOUNT_ID` | same account ID |
+| `R2_ACCESS_KEY_ID` | R2 token access key |
+| `R2_SECRET_ACCESS_KEY` | R2 token secret |
+| `R2_BUCKET` | bucket name |
 
-### 1. Create bucket
+### 4. R2 custom domain
 
-Cloudflare Dashboard → R2 → Create bucket (e.g. `rootfox-cdn`).
+Bucket → Settings → Custom Domains → `media.rootfox.cc`.
 
-### 2. API token
+### 5. Pages custom domain
 
-R2 → Manage R2 API Tokens → Create token with **Object Read & Write** for the bucket.
+After first deploy: Pages → **coub** → Custom domains → `coub.rootfox.cc`.
 
-Save:
+## Workflows
 
-- Account ID
-- Access Key ID
-- Secret Access Key
-
-### 3. Public access via custom domain
-
-R2 bucket → Settings → Custom Domains → Connect `media.rootfox.cc`.
-
-Files are served from bucket keys like `coub/2inylh.video.mp4`.
-
-### 4. CORS (optional)
-
-Only needed if you fetch media via `fetch()` from JS. `<video>` / `<audio>` tags do not require CORS.
-
-## Cloudflare R2
-
-Workflow: `.github/workflows/sync-r2.yml`
-
-Triggers on push to `main`/`master` when `src/videos/**` changes, or manually.
-
-Uploads only files that do not already exist in the bucket (`HeadObject` check).
-
-### Repository secrets
-
-| Secret | Description |
-|--------|-------------|
-| `R2_ACCOUNT_ID` | Cloudflare account ID |
-| `R2_ACCESS_KEY_ID` | R2 API token access key |
-| `R2_SECRET_ACCESS_KEY` | R2 API token secret |
-| `R2_BUCKET` | Bucket name |
-
-### Repository variables (optional)
-
-| Variable | Default |
+| Workflow | Trigger |
 |----------|---------|
-| `R2_PREFIX` | `coub` |
-
-### Local sync (optional)
-
-```bash
-export R2_ACCOUNT_ID=...
-export R2_ACCESS_KEY_ID=...
-export R2_SECRET_ACCESS_KEY=...
-export R2_BUCKET=rootfox-cdn
-npm run sync-r2
-```
+| `deploy.yml` | push to `main`, except `src/videos/**` only |
+| `sync-r2.yml` | push when `src/videos/**` changes |
 
 ## Adding new coubs
 
-1. Download media into `src/videos/` (`npm run fetch -- ...`).
-2. Update playlist JSON (`normal.json`, `funny.json`, `doom.json`).
-3. Commit and push - GitHub Actions uploads only new files to R2.
-4. Cloudflare redeploys the site without bundling videos.
+1. Add files to `src/videos/`, update JSON playlists
+2. `git push` → R2 sync uploads new media
+3. Push site changes → Pages redeploys automatically
